@@ -11,7 +11,9 @@ import edu.cwru.sepia.environment.model.history.History.HistoryView;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.State.StateView;
 import edu.cwru.sepia.environment.model.state.Unit;
+import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 import edu.cwru.sepia.util.Direction;
+import edu.cwru.sepia.util.DistanceMetrics;
 
 import java.io.*;
 import java.util.*;
@@ -170,7 +172,7 @@ public class RLAgent extends Agent {
 		Map<Integer, Action> actionMap = new HashMap<>();
 
 		if (stateHasChangedSignificantly(stateView, historyView)) {
-
+			System.out.println("significant change occured");
 			//move all the footmen move left
 			for (int id : myFootmen) {
 
@@ -178,8 +180,6 @@ public class RLAgent extends Agent {
 				int enemyID = selectAction(stateView, historyView, id);
 
 				actionMap.put(id, Action.createCompoundAttack(id, enemyID));
-
-				//actionMap.put(id, Action.createPrimitiveMove(id, Direction.EAST));
 			}
 		}
 
@@ -193,9 +193,44 @@ public class RLAgent extends Agent {
 	 */
 	private boolean stateHasChangedSignificantly(StateView stateView, HistoryView historyView) {
 
-		//a death indicates a significant change for now
-		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() -1)) {
-			System.out.println("Player: " + deathLog.getController() + " unit: " + deathLog.getDeadUnitID());
+		
+		//TODO dead units not being removed?
+		
+		
+		if (stateView.getTurnNumber() == 0) {
+			//true on first turn
+			return true;
+		}
+		Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+		for (ActionResult result : actionResults.values()) {
+
+			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
+				//return true if any units are not in the middle of executing an action
+				return true;
+			}
+		}
+
+		//a death indicates a significant change
+		boolean deathOccured = false;
+		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
+			int deadUnitID = deathLog.getDeadUnitID();
+			System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
+			
+			//remove the dead unit from whichever list its in
+			if (myFootmen.contains(deadUnitID)) {
+				myFootmen.remove(deadUnitID);
+			}
+			else if (enemyFootmen.contains(deadUnitID)) {
+				enemyFootmen.remove(deadUnitID);
+			}
+			else {
+				System.err.println("ERROR: dead unit not identified");
+				System.exit(0);
+			}
+			
+			deathOccured = true;
+		}
+		if (deathOccured) {
 			return true;
 		}
 
@@ -242,7 +277,7 @@ public class RLAgent extends Agent {
 		//this is where we nudge the weights, see book 846
 
 		//compare actual reward with predicted (U(s) = max of Q fn)
-
+		//see lec 18 slide 58
 
 
 		return oldWeights;
@@ -394,24 +429,29 @@ public class RLAgent extends Agent {
 
 		double[] featuresArray = new double[NUM_FEATURES];
 
-		//constant
-		double f1 = .5;	
-		//your closest enemy
-		double f2 = stateView.get
+		//f1 is a constant
+		featuresArray[0] = .5;
 
-				//consider avoiding those with higher health than you
-				//consider attacking closest
-				//consider attacking the those with lowest relative health
-				//consider attacking one that is attacking you
-				//consider attacking one that others are already attacking
-				//consider attacking those attacking your homies
-				//consider continuing to attack the one you attacked last time
+		//f2 is chebyshev distance to the enemy
+		UnitView attacker = stateView.getUnit(attackerId);
+		UnitView defender = stateView.getUnit(defenderId);
+		featuresArray[1] = DistanceMetrics.chebyshevDistance(attacker.getXPosition(), attacker.getYPosition(),
+				defender.getXPosition(), defender.getYPosition());
 
 
+		//consider avoiding those with higher health than you
+		//consider attacking closest
+		//consider attacking the those with lowest relative health
+		//consider attacking one that is attacking you
+		//consider attacking one that others are already attacking
+		//consider attacking those attacking your homies
+		//consider continuing to attack the one you attacked last time
 
 
 
-				return null;
+
+
+		return featuresArray;
 	}
 
 	/**
