@@ -219,6 +219,12 @@ public class RLAgent extends Agent {
 	 */
 	public double[] updateWeights(double[] oldWeights, double[] oldFeatures, double totalReward,
 			State.StateView stateView, History.HistoryView historyView, int footmanId) {
+		
+		
+		//this is where we nudge the weights, see book 846
+		
+		
+		
 		return oldWeights;
 	}
 
@@ -298,6 +304,27 @@ public class RLAgent extends Agent {
 			History.HistoryView historyView,
 			int attackerId,
 			int defenderId) {
+		
+		double[] features = calculateFeatureVector(stateView, historyView, attackerId, defenderId);
+		
+		if (weights.length != features.length) {
+			System.err.println("ERROR: weights and features not same length");
+			System.exit(0);
+		}
+
+		//compute the dot product
+		double dotProduct = 0;
+		for (int i = 0; i < features.length; i++) {
+			dotProduct += features[i] * weights[i];
+		}
+		
+		//add in w0
+		dotProduct += 0;
+		
+		
+		
+		
+		
 		return 0;
 	}
 
@@ -323,6 +350,10 @@ public class RLAgent extends Agent {
 			History.HistoryView historyView,
 			int attackerId,
 			int defenderId) {
+
+		
+		
+		
 		return null;
 	}
 
