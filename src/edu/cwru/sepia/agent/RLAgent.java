@@ -7,7 +7,9 @@ import edu.cwru.sepia.action.TargetedAction;
 import edu.cwru.sepia.environment.model.history.DamageLog;
 import edu.cwru.sepia.environment.model.history.DeathLog;
 import edu.cwru.sepia.environment.model.history.History;
+import edu.cwru.sepia.environment.model.history.History.HistoryView;
 import edu.cwru.sepia.environment.model.state.State;
+import edu.cwru.sepia.environment.model.state.State.StateView;
 import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.util.Direction;
 
@@ -36,9 +38,9 @@ public class RLAgent extends Agent {
 	public static final int ENEMY_PLAYERNUM = 1;
 
 	/**
-	 * Set this to whatever size your feature vector is.
+	 * TODO Set this to whatever size your feature vector is.
 	 */
-	public static final int NUM_FEATURES = 5;
+	public static final int NUM_FEATURES = 2;
 
 	/** Use this random number generator for your epsilon exploration. When you submit we will
 	 * change this seed so make sure that your agent works for more than the default seed.
@@ -165,23 +167,39 @@ public class RLAgent extends Agent {
 	@Override
 	public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
 
-
-
-
-		
-		//the enemy footman to attack
-		int enemyID = selectAction(stateView, historyView, 0);
-
-		
 		Map<Integer, Action> actionMap = new HashMap<>();
-		
-		
-		//move all the footmen move left
-		for (int id : myFootmen) {
-			actionMap.put(id, Action.createPrimitiveMove(id, Direction.EAST));
+
+		if (stateHasChangedSignificantly(stateView, historyView)) {
+
+			//move all the footmen move left
+			for (int id : myFootmen) {
+
+				//the enemy footman to attack
+				int enemyID = selectAction(stateView, historyView, id);
+
+				actionMap.put(id, Action.createCompoundAttack(id, enemyID));
+
+				//actionMap.put(id, Action.createPrimitiveMove(id, Direction.EAST));
+			}
 		}
 
 		return actionMap;
+	}
+
+	/**
+	 * determines whether the state has changed enough for an update
+	 * 
+	 * TODO implement this more intelligently
+	 */
+	private boolean stateHasChangedSignificantly(StateView stateView, HistoryView historyView) {
+
+		//a death indicates a significant change for now
+		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() -1)) {
+			System.out.println("Player: " + deathLog.getController() + " unit: " + deathLog.getDeadUnitID());
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -219,12 +237,14 @@ public class RLAgent extends Agent {
 	 */
 	public double[] updateWeights(double[] oldWeights, double[] oldFeatures, double totalReward,
 			State.StateView stateView, History.HistoryView historyView, int footmanId) {
-		
-		
+
+
 		//this is where we nudge the weights, see book 846
-		
-		
-		
+
+		//compare actual reward with predicted (U(s) = max of Q fn)
+
+
+
 		return oldWeights;
 	}
 
@@ -239,11 +259,36 @@ public class RLAgent extends Agent {
 	 */
 	public int selectAction(State.StateView stateView, History.HistoryView historyView, int attackerId) {
 
-		if (enemyFootmen.size() >= 1) {
-			return enemyFootmen.get(0);
+		if (enemyFootmen.size() > 0) {
+
+			//TODO temporarily set epsilon to 0 to freeze Q fn
+
+			//if the rand number less than epsilon choose random action
+			if (random.nextDouble() < epsilon) {
+
+				//choose a random index of enemyFootmen
+				int index = (int) random.nextDouble() * enemyFootmen.size();
+				//return the id
+				return enemyFootmen.get(index);
+			}
+			//otherwise choose action that maxmizes Q value
+			else {
+				int bestEnemyToAttack = enemyFootmen.get(0);
+				double bestQVal = calcQValue(stateView, historyView, attackerId, bestEnemyToAttack);
+				for (int i = 1; i < enemyFootmen.size(); i++) {
+
+					int enemyID = enemyFootmen.get(i);
+					double qVal = calcQValue(stateView, historyView, attackerId, enemyID);
+					if (qVal > bestQVal) {
+						bestQVal = qVal;
+						bestEnemyToAttack = enemyID;
+					}
+				}
+				return bestEnemyToAttack;
+			}
 		}
-		else
-			return -1;
+		//No enemies left to attack
+		return -1;
 	}
 
 	/**
@@ -304,9 +349,9 @@ public class RLAgent extends Agent {
 			History.HistoryView historyView,
 			int attackerId,
 			int defenderId) {
-		
+
 		double[] features = calculateFeatureVector(stateView, historyView, attackerId, defenderId);
-		
+
 		if (weights.length != features.length) {
 			System.err.println("ERROR: weights and features not same length");
 			System.exit(0);
@@ -317,15 +362,11 @@ public class RLAgent extends Agent {
 		for (int i = 0; i < features.length; i++) {
 			dotProduct += features[i] * weights[i];
 		}
-		
+
 		//add in w0
-		dotProduct += 0;
-		
-		
-		
-		
-		
-		return 0;
+		double qVal = dotProduct + 0;
+
+		return qVal;
 	}
 
 	/**
@@ -351,10 +392,26 @@ public class RLAgent extends Agent {
 			int attackerId,
 			int defenderId) {
 
-		
-		
-		
-		return null;
+		double[] featuresArray = new double[NUM_FEATURES];
+
+		//constant
+		double f1 = .5;	
+		//your closest enemy
+		double f2 = stateView.get
+
+				//consider avoiding those with higher health than you
+				//consider attacking closest
+				//consider attacking the those with lowest relative health
+				//consider attacking one that is attacking you
+				//consider attacking one that others are already attacking
+				//consider attacking those attacking your homies
+				//consider continuing to attack the one you attacked last time
+
+
+
+
+
+				return null;
 	}
 
 	/**
@@ -444,7 +501,7 @@ public class RLAgent extends Agent {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void savePlayerData(OutputStream outputStream) {}
 	@Override
