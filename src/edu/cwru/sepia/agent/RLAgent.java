@@ -1,10 +1,7 @@
 package edu.cwru.sepia.agent;
 
 import edu.cwru.sepia.action.Action;
-import edu.cwru.sepia.action.ActionFeedback;
 import edu.cwru.sepia.action.ActionResult;
-import edu.cwru.sepia.action.TargetedAction;
-import edu.cwru.sepia.environment.model.history.DamageLog;
 import edu.cwru.sepia.environment.model.history.DeathLog;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.history.History.HistoryView;
@@ -12,7 +9,6 @@ import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.State.StateView;
 import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.environment.model.state.Unit.UnitView;
-import edu.cwru.sepia.util.Direction;
 import edu.cwru.sepia.util.DistanceMetrics;
 
 import java.io.*;
@@ -26,6 +22,7 @@ public class RLAgent extends Agent {
 	 * and call sys.exit(0)
 	 */
 	public final int numEpisodes;
+	public int numEpisodesPlayed;
 
 	/**
 	 * List of your footmen and your enemies footmen
@@ -64,6 +61,8 @@ public class RLAgent extends Agent {
 	public final double learningRate = .0001;
 	public final double epsilon = .02;
 
+	public boolean freeze;
+
 	public RLAgent(int playernum, String[] args) {
 		super(playernum);
 
@@ -74,6 +73,9 @@ public class RLAgent extends Agent {
 			numEpisodes = 10;
 			System.out.println("Warning! Number of episodes not specified. Defaulting to 10 episodes.");
 		}
+
+		freeze = false;
+		numEpisodesPlayed = 0;
 
 		boolean loadWeights = false;
 		if (args.length >= 2) {
@@ -98,8 +100,6 @@ public class RLAgent extends Agent {
 	 */
 	@Override
 	public Map<Integer, Action> initialStep(State.StateView stateView, History.HistoryView historyView) {
-
-		//TODO You will need to add code to check if you are in a testing or learning episode
 
 		// Find all of your units
 		myFootmen = new LinkedList<>();
@@ -172,7 +172,7 @@ public class RLAgent extends Agent {
 		Map<Integer, Action> actionMap = new HashMap<>();
 
 		if (stateHasChangedSignificantly(stateView, historyView)) {
-			System.out.println("significant change occured");
+			//System.out.println("significant change occured");
 			//move all the footmen move left
 			for (int id : myFootmen) {
 
@@ -187,35 +187,24 @@ public class RLAgent extends Agent {
 	}
 
 	/**
-	 * determines whether the state has changed enough for an update
+	 * determines whether the state has changed enough for an update.
+	 * also removes the dead units that we find
 	 * 
 	 * TODO implement this more intelligently
 	 */
 	private boolean stateHasChangedSignificantly(StateView stateView, HistoryView historyView) {
 
-		
-		//TODO dead units not being removed?
-		
-		
 		if (stateView.getTurnNumber() == 0) {
 			//true on first turn
 			return true;
-		}
-		Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
-		for (ActionResult result : actionResults.values()) {
-
-			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
-				//return true if any units are not in the middle of executing an action
-				return true;
-			}
 		}
 
 		//a death indicates a significant change
 		boolean deathOccured = false;
 		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
-			int deadUnitID = deathLog.getDeadUnitID();
-			System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
-			
+			Integer deadUnitID = deathLog.getDeadUnitID();
+			//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
+
 			//remove the dead unit from whichever list its in
 			if (myFootmen.contains(deadUnitID)) {
 				myFootmen.remove(deadUnitID);
@@ -227,11 +216,20 @@ public class RLAgent extends Agent {
 				System.err.println("ERROR: dead unit not identified");
 				System.exit(0);
 			}
-			
+
 			deathOccured = true;
 		}
 		if (deathOccured) {
 			return true;
+		}
+
+		//return true if any units are not in the middle of executing an action
+		Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+		for (ActionResult result : actionResults.values()) {
+
+			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
+				return true;
+			}
 		}
 
 		return false;
@@ -246,14 +244,31 @@ public class RLAgent extends Agent {
 	@Override
 	public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
 
-		@SuppressWarnings("unchecked")
-		List<Double> avgRewards = new LinkedList();
-		avgRewards.add(1.0);
-		avgRewards.add(2.0);
-		avgRewards.add(3.0);
+		numEpisodesPlayed++;
+		System.out.println("\n" + numEpisodesPlayed + " episode(s) have been played");
 
-		//TODO MAKE SURE YOU CALL printTestData after you finish a test episode.
-		printTestData(avgRewards);
+		if ((numEpisodesPlayed - 10) % 15 == 0) {
+			freeze = true;
+			System.out.println("Entering evaluation mode, freezing Q function");
+		}
+		else if (numEpisodesPlayed % 15 == 0) {
+			freeze = false;
+
+			@SuppressWarnings("unchecked")
+			List<Double> avgRewards = new LinkedList();
+			avgRewards.add(1.0);
+			avgRewards.add(2.0);
+			avgRewards.add(3.0);		
+			printTestData(avgRewards);
+
+			System.out.println("Entering learning mode, unfreezing Q function");
+		}
+		
+		//determine if we should switch to evaluation or learning mode or should quit
+		if (numEpisodesPlayed >= numEpisodes) {
+			System.out.println("Session complete");			
+			System.exit(0);
+		}
 
 		// Save your weights
 		saveWeights(weights);
@@ -298,8 +313,8 @@ public class RLAgent extends Agent {
 
 			//TODO temporarily set epsilon to 0 to freeze Q fn
 
-			//if the rand number less than epsilon choose random action
-			if (random.nextDouble() < epsilon) {
+			//if not frozen and the rand number less than epsilon choose random action
+			if (!freeze && random.nextDouble() < epsilon) {
 
 				//choose a random index of enemyFootmen
 				int index = (int) random.nextDouble() * enemyFootmen.size();
