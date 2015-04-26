@@ -2,6 +2,8 @@ package edu.cwru.sepia.agent;
 
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.action.ActionResult;
+import edu.cwru.sepia.action.TargetedAction;
+import edu.cwru.sepia.environment.model.history.DamageLog;
 import edu.cwru.sepia.environment.model.history.DeathLog;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.history.History.HistoryView;
@@ -23,6 +25,16 @@ public class RLAgent extends Agent {
 	 */
 	public final int numEpisodes;
 	public int numEpisodesPlayed;
+	public boolean freeze;
+	//each of our footmen has its id mapped to its cumulative discounted reward
+	public Map<Integer, Double> rewardMap;
+	//ensures the +100 reward can only be claimed once for killing an enemy, so no other unit can also claim
+	//the reward for kill the same enemy. (can occur when two or more footmen attack the same enemy at once)
+	public LinkedList<Integer> enemyBlackList;
+	//stores the set of actions last send out to the footmen
+	public Map<Integer, Action> currentActionMap;
+	//store the set the actions sent out before that
+	public Map<Integer, Action> previousActionMap;
 
 	/**
 	 * List of your footmen and your enemies footmen
@@ -60,8 +72,6 @@ public class RLAgent extends Agent {
 	public final double gamma = 0.9;
 	public final double learningRate = .0001;
 	public final double epsilon = .02;
-
-	public boolean freeze;
 
 	public RLAgent(int playernum, String[] args) {
 		super(playernum);
@@ -112,6 +122,17 @@ public class RLAgent extends Agent {
 			} else {
 				System.err.println("Unknown unit type: " + unitName);
 			}
+		}
+		
+		//clear this stuff
+		rewardMap = new HashMap<>();
+		enemyBlackList = new LinkedList<>();
+		currentActionMap = null;
+		previousActionMap = null;
+
+		//initialize each footman's reward to 0
+		for (Integer id : myFootmen) {
+			rewardMap.put(id, 0.0);
 		}
 
 		// Find all of the enemy units
@@ -169,18 +190,63 @@ public class RLAgent extends Agent {
 	@Override
 	public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
 
+		//for each footman, calculate it's reward at this step and add it to it's total reward
+		for (Integer id : myFootmen) {
+			double currentReward = calculateReward(stateView, historyView, id);
+			double cumulativeReward = rewardMap.get(id);
+			rewardMap.put(id, cumulativeReward + currentReward);
+		}
+
+		if (stateView.getTurnNumber() > 0) {
+			//"bring out your dead, bring out your dead"
+			for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
+				Integer deadUnitID = deathLog.getDeadUnitID();
+				//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
+
+				//remove the dead unit from whichever list its in
+				if (myFootmen.contains(deadUnitID)) {
+					myFootmen.remove(deadUnitID);
+				}
+				else if (enemyFootmen.contains(deadUnitID)) {
+					enemyFootmen.remove(deadUnitID);
+				}
+				else {
+					System.err.println("ERROR: dead unit not identified");
+					System.exit(0);
+				}
+			}
+
+
+
+
+			//TODO remove
+			Map<Integer, Action> commandsIssued =
+					historyView.getCommandsIssued(playernum, stateView.getTurnNumber() - 1);
+			for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
+				System.out.println("Unit " + commandEntry.getKey() + " was command to " + 
+						commandEntry.getValue().toString());
+			}
+			System.out.println("---------\n\n\n");
+
+
+
+		}
+
 		Map<Integer, Action> actionMap = new HashMap<>();
 
-		if (stateHasChangedSignificantly(stateView, historyView)) {
-			//System.out.println("significant change occured");
-			//move all the footmen move left
-			for (int id : myFootmen) {
+		if (eventHasOccurred(stateView, historyView)) {
 
-				//the enemy footman to attack
+			for (Integer id : myFootmen) {
+				//reassign attack actions
 				int enemyID = selectAction(stateView, historyView, id);
+
+				updateWeights(weights, calculateFeatureVector(stateView, historyView, id, enemyID), 
+						rewardMap.get(id), stateView, historyView, id);
 
 				actionMap.put(id, Action.createCompoundAttack(id, enemyID));
 			}
+			previousActionMap = currentActionMap;
+			currentActionMap = actionMap;
 		}
 
 		return actionMap;
@@ -188,19 +254,47 @@ public class RLAgent extends Agent {
 
 	/**
 	 * determines whether the state has changed enough for an update.
-	 * also removes the dead units that we find
 	 * 
 	 * TODO implement this more intelligently
 	 */
-	private boolean stateHasChangedSignificantly(StateView stateView, HistoryView historyView) {
+	private boolean eventHasOccurred(StateView stateView, HistoryView historyView) {
 
 		if (stateView.getTurnNumber() == 0) {
 			//true on first turn
+			System.out.println("event has occurred: first turn");			
+			return true;
+		}
+		//a death indicates a significant change
+		if (historyView.getDeathLogs(stateView.getTurnNumber() - 1).size() > 0) {
+			System.out.println("event has occurred: somebody died");			
 			return true;
 		}
 
-		//a death indicates a significant change
-		boolean deathOccured = false;
+		//return true if any units are not in the middle of executing an action
+		Map<Integer, ActionResult> actionResults =
+				historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+		for (ActionResult result : actionResults.values()) {
+
+			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
+				System.out.println("event has occurred: Somebody's action was: " +
+						result.getFeedback().toString());			
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Here you will calculate the cumulative average rewards for your testing episodes. If you have just
+	 * finished a set of test episodes you will call out testEpisode.
+	 *
+	 * It is also a good idea to save your weights with the saveWeights function.
+	 */
+	@Override
+	public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
+
+		//"bring out your dead, bring out your dead"
+		//remove the dead people so we can see who won
 		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
 			Integer deadUnitID = deathLog.getDeadUnitID();
 			//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
@@ -216,36 +310,22 @@ public class RLAgent extends Agent {
 				System.err.println("ERROR: dead unit not identified");
 				System.exit(0);
 			}
-
-			deathOccured = true;
 		}
-		if (deathOccured) {
-			return true;
+		
+		//say who wins
+		if (myFootmen.size() == 0) {
+			System.out.println("You Lose");
 		}
-
-		//return true if any units are not in the middle of executing an action
-		Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
-		for (ActionResult result : actionResults.values()) {
-
-			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
-				return true;
-			}
+		else if (enemyFootmen.size() == 0) {
+			System.out.println("You Win");
+		}
+		else {
+			System.err.println("ERROR: Winner unknown");
 		}
 
-		return false;
-	}
-
-	/**
-	 * Here you will calculate the cumulative average rewards for your testing episodes. If you have just
-	 * finished a set of test episodes you will call out testEpisode.
-	 *
-	 * It is also a good idea to save your weights with the saveWeights function.
-	 */
-	@Override
-	public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
 
 		numEpisodesPlayed++;
-		System.out.println("\n" + numEpisodesPlayed + " episode(s) have been played");
+		System.out.println("\n" + numEpisodesPlayed + " episodes have been played");
 
 		if ((numEpisodesPlayed - 10) % 15 == 0) {
 			freeze = true;
@@ -256,6 +336,7 @@ public class RLAgent extends Agent {
 
 			@SuppressWarnings("unchecked")
 			List<Double> avgRewards = new LinkedList();
+			//TODO cumulative rewards should be undiscounted
 			avgRewards.add(1.0);
 			avgRewards.add(2.0);
 			avgRewards.add(3.0);		
@@ -263,14 +344,13 @@ public class RLAgent extends Agent {
 
 			System.out.println("Entering learning mode, unfreezing Q function");
 		}
-		
+
 		//determine if we should switch to evaluation or learning mode or should quit
 		if (numEpisodesPlayed >= numEpisodes) {
 			System.out.println("Session complete");			
 			System.exit(0);
 		}
 
-		// Save your weights
 		saveWeights(weights);
 
 	}
@@ -285,8 +365,24 @@ public class RLAgent extends Agent {
 	 * @param footmanId The footman we are updating the weights for
 	 * @return The updated weight vector.
 	 */
-	public double[] updateWeights(double[] oldWeights, double[] oldFeatures, double totalReward,
+	public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward,
 			State.StateView stateView, History.HistoryView historyView, int footmanId) {
+
+		double[] newWeights = new double[oldWeights.length];
+		for (int i = 0; i < oldWeights.length; i++) {
+
+			double oldWeight = oldWeights[i];
+
+
+
+
+
+			double dLdw = 0;
+			double newWeight = oldWeight - learningRate * (dLdw);			
+
+		}
+
+
 
 
 		//this is where we nudge the weights, see book 846
@@ -377,8 +473,87 @@ public class RLAgent extends Agent {
 	 * @param footmanId The footman ID you are looking for the reward from.
 	 * @return The current reward
 	 */
+	//discounting is not necessary because we update the reward at every step, 
 	public double calculateReward(State.StateView stateView, History.HistoryView historyView, int footmanId) {
-		return 0;
+
+		//no reward on the first turn because nothing has happened yet
+		if (stateView.getTurnNumber() == 0) {
+			return 0;
+		}
+
+		double reward = 0;
+
+		//Here we only add -.1 to the reward if a new action is given to this footman
+		Map<Integer, Action> commandsIssued =
+				historyView.getCommandsIssued(playernum, stateView.getTurnNumber() - 1);
+		for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
+
+			if (commandEntry.getKey() == footmanId) {
+
+				if (previousActionMap != null) {
+					//TODO cast works because no other actions can exist, right?
+					TargetedAction oldAction = (TargetedAction) previousActionMap.get(footmanId);
+					TargetedAction newAction = (TargetedAction) commandEntry.getValue();
+
+					//new action started if the targets are different
+					if (oldAction.getTargetId() != newAction.getTargetId()) {
+						reward -= 0.1;
+					}
+				}
+				//no previous action -> new action started
+				else {
+					reward -= 0.1;
+				}
+
+			}
+		}
+
+		for(DamageLog damageLog : historyView.getDamageLogs(stateView.getTurnNumber() - 1)) {
+
+			int damageAmount = damageLog.getDamage();	
+			Integer defenderID = damageLog.getDefenderID();
+			Integer attackerID = damageLog.getAttackerID();
+
+			if (defenderID == footmanId) {
+				reward -= damageAmount;
+			}
+
+			if (attackerID == footmanId) {
+				reward += damageAmount;
+			}
+		}
+
+		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
+
+			int playerID = deathLog.getController();
+			Integer deadUnitID = deathLog.getDeadUnitID();
+
+			//check if it was an enemy that died
+			if (ENEMY_PLAYERNUM == playerID) {		
+
+				Map<Integer, ActionResult> actionResults =
+						historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+				for (ActionResult result : actionResults.values()) {
+
+					//TODO cast works because no other actions can exist, right?
+					TargetedAction compoundAttack = (TargetedAction) result.getAction();
+					//claim the reward if no one else has claimed it, and this footman was the killer
+					if (!enemyBlackList.contains(deadUnitID) &&
+							compoundAttack.getUnitId() == footmanId &&
+							compoundAttack.getTargetId() == deadUnitID) {
+						enemyBlackList.add(deadUnitID);
+						reward += 100;
+						System.out.println("kill reward claimed");
+						break;
+					}
+				}
+			}
+			else if (deadUnitID == footmanId) {
+				reward -= 100;
+			}
+		}
+
+		return reward;
 	}
 
 	/**
