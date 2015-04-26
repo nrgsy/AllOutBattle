@@ -323,7 +323,6 @@ public class RLAgent extends Agent {
 			System.err.println("ERROR: Winner unknown");
 		}
 
-
 		numEpisodesPlayed++;
 		System.out.println("\n" + numEpisodesPlayed + " episodes have been played");
 
@@ -335,8 +334,10 @@ public class RLAgent extends Agent {
 			freeze = false;
 
 			@SuppressWarnings("unchecked")
+			//TODO cumulative rewards should be UNDISCOUNTED
+
+			//TODO implement reward counting over the last 5 test rounds.
 			List<Double> avgRewards = new LinkedList();
-			//TODO cumulative rewards should be undiscounted
 			avgRewards.add(1.0);
 			avgRewards.add(2.0);
 			avgRewards.add(3.0);		
@@ -368,18 +369,25 @@ public class RLAgent extends Agent {
 	public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward,
 			State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
+		
+		//TODO in progress, not yet complete
 		double[] newWeights = new double[oldWeights.length];
 		for (int i = 0; i < oldWeights.length; i++) {
 
 			double oldWeight = oldWeights[i];
 
+			//TODO pass this in instead of re-calling select action? it's available where its called
+			int enemyID = selectAction(stateView, historyView, footmanId);
 
+			
+			currentQVal = calcQValue(stateView, historyView, footmanId, defenderId)
+			
+			double targetQVal = reward + gamma * maxQVal;		
+			double dldw = -1 * (targetQVal - currentQVal) * feature;
+			double newWeight = oldWeight - learningRate * (dldw);			
 
-
-
-			double dLdw = 0;
-			double newWeight = oldWeight - learningRate * (dLdw);			
-
+			
+			
 		}
 
 
@@ -476,6 +484,10 @@ public class RLAgent extends Agent {
 	//discounting is not necessary because we update the reward at every step, 
 	public double calculateReward(State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
+		
+		//TODO figure out how to implement discounting of rewards, see lec 17 slide 16
+		
+		
 		//no reward on the first turn because nothing has happened yet
 		if (stateView.getTurnNumber() == 0) {
 			return 0;
