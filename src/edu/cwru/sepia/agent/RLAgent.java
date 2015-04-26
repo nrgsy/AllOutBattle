@@ -25,8 +25,13 @@ public class RLAgent extends Agent {
 	 */
 	public final int numEpisodes;
 	public int numEpisodesPlayed;
+	/*
+	 * when true, weights will not be updated and Q function will always be used to pick actions
+	 * (no random action picking) (essentially determines whether we're in learning or evaluation mode)
+	 */
 	public boolean freeze;
 	//each of our footmen has its id mapped to its cumulative discounted reward
+	//TODO make sure these rewards are discounted
 	public Map<Integer, Double> rewardMap;
 	//ensures the +100 reward can only be claimed once for killing an enemy, so no other unit can also claim
 	//the reward for kill the same enemy. (can occur when two or more footmen attack the same enemy at once)
@@ -35,6 +40,12 @@ public class RLAgent extends Agent {
 	public Map<Integer, Action> currentActionMap;
 	//store the set the actions sent out before that
 	public Map<Integer, Action> previousActionMap;
+	//the rewards from the 5 evaluation rounds
+	public Double[] evaluationRewards;
+	//counter to keep track of which evaluation round we're on
+	public int evalRoundCounter;
+	//the list of average rewards (one for each of evaluation session)
+	public List<Double> avgRewards;
 
 	/**
 	 * List of your footmen and your enemies footmen
@@ -77,15 +88,20 @@ public class RLAgent extends Agent {
 		super(playernum);
 
 		if (args.length >= 1) {
-			numEpisodes = Integer.parseInt(args[0]);
+			numEpisodes = 200;//TODO Integer.parseInt(args[0]);
 			System.out.println("Running " + numEpisodes + " episodes.");
 		} else {
 			numEpisodes = 10;
 			System.out.println("Warning! Number of episodes not specified. Defaulting to 10 episodes.");
 		}
 
-		freeze = false;
+		//start with Q function frozen so that the first 5 rounds will be evaluation rounds
+		//This will given us a good baseline for average cumulative reward (because the Q function
+		//is garbage at the start)
+		freeze = true;
 		numEpisodesPlayed = 0;
+		avgRewards = new LinkedList<>();
+		evaluationRewards = new Double[5];
 
 		boolean loadWeights = false;
 		if (args.length >= 2) {
@@ -123,7 +139,7 @@ public class RLAgent extends Agent {
 				System.err.println("Unknown unit type: " + unitName);
 			}
 		}
-		
+
 		//clear this stuff
 		rewardMap = new HashMap<>();
 		enemyBlackList = new LinkedList<>();
@@ -191,46 +207,8 @@ public class RLAgent extends Agent {
 	public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
 
 		//for each footman, calculate it's reward at this step and add it to it's total reward
-		for (Integer id : myFootmen) {
-			double currentReward = calculateReward(stateView, historyView, id);
-			double cumulativeReward = rewardMap.get(id);
-			rewardMap.put(id, cumulativeReward + currentReward);
-		}
-
-		if (stateView.getTurnNumber() > 0) {
-			//"bring out your dead, bring out your dead"
-			for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
-				Integer deadUnitID = deathLog.getDeadUnitID();
-				//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
-
-				//remove the dead unit from whichever list its in
-				if (myFootmen.contains(deadUnitID)) {
-					myFootmen.remove(deadUnitID);
-				}
-				else if (enemyFootmen.contains(deadUnitID)) {
-					enemyFootmen.remove(deadUnitID);
-				}
-				else {
-					System.err.println("ERROR: dead unit not identified");
-					System.exit(0);
-				}
-			}
-
-
-
-
-			//TODO remove
-			Map<Integer, Action> commandsIssued =
-					historyView.getCommandsIssued(playernum, stateView.getTurnNumber() - 1);
-			for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
-				System.out.println("Unit " + commandEntry.getKey() + " was command to " + 
-						commandEntry.getValue().toString());
-			}
-			System.out.println("---------\n\n\n");
-
-
-
-		}
+		updateFootmenRewards(stateView, historyView);		
+		cleanupDeadUnits(stateView, historyView);
 
 		Map<Integer, Action> actionMap = new HashMap<>();
 
@@ -240,8 +218,11 @@ public class RLAgent extends Agent {
 				//reassign attack actions
 				int enemyID = selectAction(stateView, historyView, id);
 
-				updateWeights(weights, calculateFeatureVector(stateView, historyView, id, enemyID), 
-						rewardMap.get(id), stateView, historyView, id);
+				//only update weights freeze == false
+				if (!freeze) {
+					weights = updateWeights(weights, calculateFeatureVector(stateView, historyView, id, enemyID), 
+							rewardMap.get(id), stateView, historyView, id, enemyID);
+				}
 
 				actionMap.put(id, Action.createCompoundAttack(id, enemyID));
 			}
@@ -261,12 +242,12 @@ public class RLAgent extends Agent {
 
 		if (stateView.getTurnNumber() == 0) {
 			//true on first turn
-			System.out.println("event has occurred: first turn");			
+			//System.out.println("event has occurred: first turn");			
 			return true;
 		}
 		//a death indicates a significant change
 		if (historyView.getDeathLogs(stateView.getTurnNumber() - 1).size() > 0) {
-			System.out.println("event has occurred: somebody died");			
+			//System.out.println("event has occurred: somebody died");			
 			return true;
 		}
 
@@ -276,8 +257,8 @@ public class RLAgent extends Agent {
 		for (ActionResult result : actionResults.values()) {
 
 			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
-				System.out.println("event has occurred: Somebody's action was: " +
-						result.getFeedback().toString());			
+//				System.out.println("event has occurred: Somebody's action was: " +
+//						result.getFeedback().toString());			
 				return true;
 			}
 		}
@@ -293,31 +274,17 @@ public class RLAgent extends Agent {
 	@Override
 	public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
 
-		//"bring out your dead, bring out your dead"
-		//remove the dead people so we can see who won
-		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
-			Integer deadUnitID = deathLog.getDeadUnitID();
-			//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
+		//add the rewards for the last move
+		updateFootmenRewards(stateView, historyView);		
+		//remove the dead people so we can see who won and by how much
+		cleanupDeadUnits(stateView, historyView);
 
-			//remove the dead unit from whichever list its in
-			if (myFootmen.contains(deadUnitID)) {
-				myFootmen.remove(deadUnitID);
-			}
-			else if (enemyFootmen.contains(deadUnitID)) {
-				enemyFootmen.remove(deadUnitID);
-			}
-			else {
-				System.err.println("ERROR: dead unit not identified");
-				System.exit(0);
-			}
-		}
-		
 		//say who wins
 		if (myFootmen.size() == 0) {
-			System.out.println("You Lose");
+			System.out.println("You Lose. Enemy has " + enemyFootmen.size() + " footmen remaining");
 		}
 		else if (enemyFootmen.size() == 0) {
-			System.out.println("You Win");
+			System.out.println("You Win. You have " + myFootmen.size() + " footmen remaining");
 		}
 		else {
 			System.err.println("ERROR: Winner unknown");
@@ -326,34 +293,88 @@ public class RLAgent extends Agent {
 		numEpisodesPlayed++;
 		System.out.println("\n" + numEpisodesPlayed + " episodes have been played");
 
-		if ((numEpisodesPlayed - 10) % 15 == 0) {
-			freeze = true;
+		//count the total reward if we're in evaluation mode (freeze == true)
+		if (freeze) {
+			Double sum = 0.0;
+			for (Double reward : rewardMap.values()) {
+				sum += reward;
+			}
+			evaluationRewards[evalRoundCounter] = sum;
+			evalRoundCounter++;
+		}
+		
+		//Q function starts frozen for the first 5 rounds, so freeze needs to be set to true every 15 rounds
+		//so freezing will occur at round 0, 15, 30, etc
+		if (numEpisodesPlayed % 15 == 0) {
 			System.out.println("Entering evaluation mode, freezing Q function");
+			freeze = true;
+			evaluationRewards = new Double[5];
+			evalRoundCounter = 0;
 		}
-		else if (numEpisodesPlayed % 15 == 0) {
-			freeze = false;
-
-			@SuppressWarnings("unchecked")
-			//TODO cumulative rewards should be UNDISCOUNTED
-
-			//TODO implement reward counting over the last 5 test rounds.
-			List<Double> avgRewards = new LinkedList();
-			avgRewards.add(1.0);
-			avgRewards.add(2.0);
-			avgRewards.add(3.0);		
-			printTestData(avgRewards);
-
+		//similarly unfreezing will occur at round 5, 20, 35, etc
+		else if ((numEpisodesPlayed - 5) % 15 == 0) {
 			System.out.println("Entering learning mode, unfreezing Q function");
+			freeze = false;
+			
+			//TODO cumulative rewards should be UNDISCOUNTED
+			Double sum = 0.0;
+			for (Double reward : evaluationRewards) {
+				sum += reward;
+			}
+			
+			Double avg = sum/evaluationRewards.length;
+			avgRewards.add(avg);	
+			printTestData(avgRewards);
 		}
 
-		//determine if we should switch to evaluation or learning mode or should quit
+		//quit if we've just played the last episode
 		if (numEpisodesPlayed >= numEpisodes) {
 			System.out.println("Session complete");			
 			System.exit(0);
 		}
 
 		saveWeights(weights);
+	}
 
+	/**
+	 * removes the units that were killed on the last turn from myFootmen and enemyFootmen
+	 * 
+	 * @param stateView
+	 * @param historyView
+	 */
+	private void cleanupDeadUnits(State.StateView stateView, History.HistoryView historyView) {
+		if (stateView.getTurnNumber() > 0) {
+			//"bring out your dead, bring out your dead"
+			for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)) {
+				Integer deadUnitID = deathLog.getDeadUnitID();
+				//System.out.println("Player: " + deathLog.getController() + " unit: " + deadUnitID);
+
+				//remove the dead unit from whichever list its in
+				if (myFootmen.contains(deadUnitID)) {
+					myFootmen.remove(deadUnitID);
+				}
+				else if (enemyFootmen.contains(deadUnitID)) {
+					enemyFootmen.remove(deadUnitID);
+				}
+				else {
+					System.err.println("ERROR: dead unit not identified");
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add the rewards from the last turn to each unit's totals
+	 * 
+	 * @param stateView
+	 * @param historyView
+	 */
+	private void updateFootmenRewards(State.StateView stateView, History.HistoryView historyView) {
+		for (Integer id : myFootmen) {
+			double currentReward = calculateReward(stateView, historyView, id);
+			double cumulativeReward = rewardMap.get(id);
+			rewardMap.put(id, cumulativeReward + currentReward);
+		}			
 	}
 
 	/**
@@ -367,39 +388,41 @@ public class RLAgent extends Agent {
 	 * @return The updated weight vector.
 	 */
 	public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward,
-			State.StateView stateView, History.HistoryView historyView, int footmanId) {
+			State.StateView stateView, History.HistoryView historyView, int footmanId, int enemyId) {
 
-		
-		//TODO in progress, not yet complete
-		double[] newWeights = new double[oldWeights.length];
+
+		//TODO not sure if this is doing exactly what we're supposed to
+		//see lec 18 slide 58, and book 846
+
+		Double[] newWeights = new Double[oldWeights.length];
 		for (int i = 0; i < oldWeights.length; i++) {
 
-			double oldWeight = oldWeights[i];
+			double currentQVal = calcQValue(stateView, historyView, footmanId, enemyId);
 
-			//TODO pass this in instead of re-calling select action? it's available where its called
-			int enemyID = selectAction(stateView, historyView, footmanId);
+			double maxQVal = currentQVal;
+			for (Integer enemy : enemyFootmen) {
+				double qVal = calcQValue(stateView, historyView, footmanId, enemy);
+				if (qVal > maxQVal) {
+					maxQVal = qVal;
+				}
+			}
 
-			
-			currentQVal = calcQValue(stateView, historyView, footmanId, defenderId)
-			
-			double targetQVal = reward + gamma * maxQVal;		
-			double dldw = -1 * (targetQVal - currentQVal) * feature;
-			double newWeight = oldWeight - learningRate * (dldw);			
-
-			
-			
+			double targetQVal = totalReward + gamma * maxQVal;
+			double dldw = -1 * (targetQVal - currentQVal) * oldFeatures[i];
+			newWeights[i] = oldWeights[i] - learningRate * (dldw);				
 		}
 
+		//		System.out.println("\nOld weights: ");
+		//		for (int i = 0; i < oldWeights.length; i++) {
+		//			System.out.print(oldWeights[i] + ", ");
+		//		}
+		//		System.out.println();
+		//		System.out.println("New weights: ");
+		//		for (int i = 0; i < newWeights.length; i++) {
+		//			System.out.print(newWeights[i] + ", ");
+		//		}
 
-
-
-		//this is where we nudge the weights, see book 846
-
-		//compare actual reward with predicted (U(s) = max of Q fn)
-		//see lec 18 slide 58
-
-
-		return oldWeights;
+		return newWeights;
 	}
 
 	/**
@@ -414,9 +437,6 @@ public class RLAgent extends Agent {
 	public int selectAction(State.StateView stateView, History.HistoryView historyView, int attackerId) {
 
 		if (enemyFootmen.size() > 0) {
-
-			//TODO temporarily set epsilon to 0 to freeze Q fn
-
 			//if not frozen and the rand number less than epsilon choose random action
 			if (!freeze && random.nextDouble() < epsilon) {
 
@@ -484,10 +504,10 @@ public class RLAgent extends Agent {
 	//discounting is not necessary because we update the reward at every step, 
 	public double calculateReward(State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
-		
+
 		//TODO figure out how to implement discounting of rewards, see lec 17 slide 16
-		
-		
+
+
 		//no reward on the first turn because nothing has happened yet
 		if (stateView.getTurnNumber() == 0) {
 			return 0;
@@ -541,7 +561,7 @@ public class RLAgent extends Agent {
 			Integer deadUnitID = deathLog.getDeadUnitID();
 
 			//check if it was an enemy that died
-			if (ENEMY_PLAYERNUM == playerID) {		
+			if (ENEMY_PLAYERNUM == playerID) {
 
 				Map<Integer, ActionResult> actionResults =
 						historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
