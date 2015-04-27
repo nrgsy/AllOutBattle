@@ -1,70 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<state xExtent="25" yExtent="19" nextTargetID="17" nextTemplateID="66" fogOfWar="false">
+<state xExtent="25" yExtent="19" nextTargetID="8" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
-        <unit>
-            <ID>1</ID>
-            <currentHealth>2</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>8</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>2</ID>
-            <currentHealth>3</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>7</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>3</ID>
-            <currentHealth>45</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>5</ID>
-            <currentHealth>47</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>6</ID>
-            <currentHealth>34</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>7</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>7</ID>
-            <currentHealth>52</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>9</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>8</ID>
-            <currentHealth>30</currentHealth>
-            <xPosition>19</xPosition>
-            <yPosition>7</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>0</ID>
             <foodCost>0</foodCost>
@@ -823,11 +760,38 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>5</supply>
+        <supply>-1</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
+        <unit>
+            <ID>6</ID>
+            <currentHealth>13</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>7</ID>
+            <currentHealth>52</currentHealth>
+            <xPosition>13</xPosition>
+            <yPosition>6</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>8</ID>
+            <currentHealth>44</currentHealth>
+            <xPosition>13</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>34</ID>
             <foodCost>0</foodCost>
@@ -1440,8 +1404,8 @@
             <timeCost>1</timeCost>
             <name>Footman</name>
             <baseHealth>60</baseHealth>
-            <baseAttack>7</baseAttack>
-            <piercingAttack>3</piercingAttack>
+            <baseAttack>6</baseAttack>
+            <piercingAttack>4</piercingAttack>
             <range>1</range>
             <armor>2</armor>
             <sightRange>4</sightRange>
@@ -1586,7 +1550,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-2</supply>
+        <supply>2</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>

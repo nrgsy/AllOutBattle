@@ -236,7 +236,6 @@ public class RLAgent extends Agent {
 			previousActionMap = currentActionMap;
 			currentActionMap = actionMap;
 		}
-
 		return actionMap;
 	}
 
@@ -418,7 +417,6 @@ public class RLAgent extends Agent {
 				}
 			}
 
-
 			double targetQVal = totalReward + gamma * maxQVal;
 			double dldw = -1 * (targetQVal - currentQVal) * oldFeatures[i];
 			newWeights[i] = oldWeights[i] - learningRate * (dldw);	
@@ -531,6 +529,8 @@ public class RLAgent extends Agent {
 		double reward = 0;
 
 		//Here we only add -.1 to the reward if a new action is given to this footman
+		//So if a new command is issued, but the target is the same, don't add -.1 because its not
+		//really a new move
 		Map<Integer, Action> commandsIssued =
 				historyView.getCommandsIssued(playernum, stateView.getTurnNumber() - 1);
 		for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
@@ -599,6 +599,8 @@ public class RLAgent extends Agent {
 				reward -= 100;
 			}
 		}
+		
+		
 
 		return reward;
 	}

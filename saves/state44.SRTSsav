@@ -1,30 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<state xExtent="25" yExtent="19" nextTargetID="17" nextTemplateID="66" fogOfWar="false">
+<state xExtent="25" yExtent="19" nextTargetID="8" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
         <unit>
-            <ID>6</ID>
-            <currentHealth>34</currentHealth>
+            <ID>9</ID>
+            <currentHealth>15</currentHealth>
             <xPosition>17</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>7</ID>
-            <currentHealth>55</currentHealth>
-            <xPosition>20</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>8</ID>
-            <currentHealth>39</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>6</yPosition>
+            <yPosition>5</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -787,7 +769,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>1</supply>
+        <supply>0</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
@@ -1404,8 +1386,8 @@
             <timeCost>1</timeCost>
             <name>Footman</name>
             <baseHealth>60</baseHealth>
-            <baseAttack>7</baseAttack>
-            <piercingAttack>3</piercingAttack>
+            <baseAttack>6</baseAttack>
+            <piercingAttack>4</piercingAttack>
             <range>1</range>
             <armor>2</armor>
             <sightRange>4</sightRange>
@@ -1550,7 +1532,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-2</supply>
+        <supply>-1</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>
