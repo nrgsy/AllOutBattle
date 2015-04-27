@@ -14,13 +14,13 @@
 	This means you won't have to click start at the end of each episode and things will run a lot faster.
 	To comment it out just wrap the <Player></Player> tags in XML comments -->
 	
-	<!--<Player Id="0">
+	<Player Id="0">
 		<AgentClass>
 			<ClassName>edu.cwru.sepia.agent.visual.VisualAgent</ClassName>
 			<Argument>true</Argument>
 			<Argument>false</Argument>
 		</AgentClass>
-	</Player>-->
+	</Player>
 
 
 	<Player Id="1">

@@ -62,7 +62,7 @@ public class RLAgent extends Agent {
 	/**
 	 * TODO Set this to whatever size your feature vector is.
 	 */
-	public static final int NUM_FEATURES = 2;
+	public static final int NUM_FEATURES = 5;
 
 	/** Use this random number generator for your epsilon exploration. When you submit we will
 	 * change this seed so make sure that your agent works for more than the default seed.
@@ -88,7 +88,7 @@ public class RLAgent extends Agent {
 		super(playernum);
 
 		if (args.length >= 1) {
-			numEpisodes = 110;//TODO revert: Integer.parseInt(args[0]);
+			numEpisodes = 65;//TODO revert: Integer.parseInt(args[0]);
 			System.out.println("Running " + numEpisodes + " episodes.");
 		} else {
 			numEpisodes = 10;
@@ -111,8 +111,8 @@ public class RLAgent extends Agent {
 		}
 
 		//TODO remove
-		loadWeights = true;
-		
+		//loadWeights = true;
+
 		if (loadWeights) {
 			weights = loadWeights();
 		} else {
@@ -143,7 +143,7 @@ public class RLAgent extends Agent {
 			}
 		}
 
-		//clear this stuff
+		//clear this stuff every round
 		rewardMap = new HashMap<>();
 		enemyBlackList = new LinkedList<>();
 		currentActionMap = null;
@@ -397,13 +397,12 @@ public class RLAgent extends Agent {
 	public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward,
 			State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
-
 		//TODO not sure if this is doing exactly what we're supposed to
 		//see lec 18 slide 58, and book 846
 
 		Double[] newWeights = new Double[oldWeights.length];
 		for (int i = 0; i < oldWeights.length; i++) {
-			
+
 			//compute the dot product to get the final qVal
 			double dotProduct = 0;
 			for (int j = 0; j < oldFeatures.length; j++) {
@@ -419,9 +418,13 @@ public class RLAgent extends Agent {
 				}
 			}
 
+
 			double targetQVal = totalReward + gamma * maxQVal;
 			double dldw = -1 * (targetQVal - currentQVal) * oldFeatures[i];
-			newWeights[i] = oldWeights[i] - learningRate * (dldw);				
+			newWeights[i] = oldWeights[i] - learningRate * (dldw);	
+
+			//TODO ask george if his diffs are fucking enormous
+			//System.out.println("diff " + i + " is: " + (targetQVal - currentQVal));
 		}
 
 		//		System.out.println("\nOld weights: ");
@@ -664,8 +667,8 @@ public class RLAgent extends Agent {
 		UnitView defender = stateView.getUnit(defenderId);
 
 		double[] featuresArray = new double[NUM_FEATURES];
-		
-		//f1 is a constant
+
+		//f0 is a constant
 		featuresArray[0] = 1;
 
 		int targetDistance = DistanceMetrics.chebyshevDistance(attacker.getXPosition(),
@@ -681,25 +684,62 @@ public class RLAgent extends Agent {
 				closenessRank++;
 			}
 		}
-		//f2 is the rank of how close this enemy is to the footman compared to the others in terms of
-		//chebyshev distance
-		featuresArray[1] = closenessRank;
+		//f1 is the number of enemies left minus the rank of how close this enemy is to the footman
+		//compared to the others in terms of chebyshev distance.
+		//Chose to use the feature because it causes the footmen to favor attacking closer enemies
+		featuresArray[1] = enemyFootmen.size() - closenessRank;
 
-		//f3 is the health ratio of the friendly footman to its target
-		//featuresArray[2] = attacker.getHP()/defender.getHP();
 
+		//f2 is the health ratio of the friendly footman to its target
+		//This features causes the footmen to favor attacking enemies weaker that themselves
+		featuresArray[2] = attacker.getHP()/defender.getHP();
+		//		featuresArray[2] = attacker.getHP() - defender.getHP();
+		//		featuresArray[2] = defender.getHP() - attacker.getHP();
+
+
+		//the number of friendly units also attacking your target
 		int numFriendliesAlsoAttacking = 0;
-		if (currentActionMap != null) {
-			for (Action a : currentActionMap.values()) {
-				TargetedAction targetedAction = (TargetedAction) a;
-				if (defenderId == targetedAction.getTargetId()) {
-					numFriendliesAlsoAttacking++;
+			
+		if (stateView.getTurnNumber() != 0) {
+
+			Map<Integer, Action> commandsIssued =
+					historyView.getCommandsIssued(playernum, stateView.getTurnNumber() - 1);
+			for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
+				if (commandEntry.getKey() != attackerId) {
+					TargetedAction action = (TargetedAction) commandEntry.getValue();
+					if (action != null && action.getTargetId() == defenderId) {
+						numFriendliesAlsoAttacking++;
+					}
 				}
 			}
 		}
-		//f5 is the number of of friendly units also attacking the target
-		//featuresArray[3] = numFriendliesAlsoAttacking;
+		
+		//f3 is the number of of friendly units also attacking the target divided by the total number of
+		//friendlies 
+		featuresArray[3] = numFriendliesAlsoAttacking/myFootmen.size();
 
+
+		//determines if target was attacking you on the last turn
+		double enemyIsAttackingFriendly = -1;
+		if (stateView.getTurnNumber() != 0) {
+
+			Map<Integer, Action> commandsIssued =
+					historyView.getCommandsIssued(ENEMY_PLAYERNUM, stateView.getTurnNumber() - 1);
+			for (Map.Entry<Integer, Action> commandEntry : commandsIssued.entrySet()) {
+
+				if (commandEntry.getKey() == defenderId) {
+
+					TargetedAction action = (TargetedAction) commandEntry.getValue();
+					if (action != null && action.getTargetId() == attackerId) {
+						//System.out.println("atttttaAACKCKCAKAKKK");
+						enemyIsAttackingFriendly = 1;
+					}
+				}
+			}
+		}
+
+		//Chose to use the feature because it encourages footmen to defend themselves
+		featuresArray[4] = enemyIsAttackingFriendly;
 
 		//consider avoiding those with higher health than you
 		//consider attacking closest

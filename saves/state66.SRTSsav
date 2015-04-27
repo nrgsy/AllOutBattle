@@ -3,18 +3,18 @@
     <player>
         <ID>0</ID>
         <unit>
-            <ID>2</ID>
-            <currentHealth>6</currentHealth>
-            <xPosition>14</xPosition>
-            <yPosition>5</yPosition>
+            <ID>3</ID>
+            <currentHealth>17</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>7</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>9</ID>
-            <currentHealth>53</currentHealth>
-            <xPosition>15</xPosition>
+            <currentHealth>43</currentHealth>
+            <xPosition>14</xPosition>
             <yPosition>5</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>

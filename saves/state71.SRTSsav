@@ -766,10 +766,10 @@
     <player>
         <ID>1</ID>
         <unit>
-            <ID>7</ID>
-            <currentHealth>15</currentHealth>
-            <xPosition>13</xPosition>
-            <yPosition>6</yPosition>
+            <ID>8</ID>
+            <currentHealth>19</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>4</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>

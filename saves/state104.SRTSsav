@@ -4,26 +4,26 @@
         <ID>0</ID>
         <unit>
             <ID>2</ID>
-            <currentHealth>27</currentHealth>
+            <currentHealth>6</currentHealth>
             <xPosition>14</xPosition>
-            <yPosition>6</yPosition>
+            <yPosition>5</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>3</ID>
-            <currentHealth>3</currentHealth>
-            <xPosition>13</xPosition>
-            <yPosition>6</yPosition>
+            <currentHealth>40</currentHealth>
+            <xPosition>14</xPosition>
+            <yPosition>4</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>9</ID>
-            <currentHealth>45</currentHealth>
-            <xPosition>14</xPosition>
+            <currentHealth>32</currentHealth>
+            <xPosition>13</xPosition>
             <yPosition>5</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>

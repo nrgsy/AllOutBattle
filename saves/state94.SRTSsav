@@ -3,17 +3,8 @@
     <player>
         <ID>0</ID>
         <unit>
-            <ID>1</ID>
-            <currentHealth>4</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>2</ID>
-            <currentHealth>60</currentHealth>
+            <ID>0</ID>
+            <currentHealth>20</currentHealth>
             <xPosition>15</xPosition>
             <yPosition>5</yPosition>
             <templateID>25</templateID>
@@ -21,18 +12,27 @@
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
+            <ID>2</ID>
+            <currentHealth>28</currentHealth>
+            <xPosition>13</xPosition>
+            <yPosition>6</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
             <ID>3</ID>
-            <currentHealth>4</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>7</yPosition>
+            <currentHealth>38</currentHealth>
+            <xPosition>14</xPosition>
+            <yPosition>6</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>9</ID>
-            <currentHealth>43</currentHealth>
-            <xPosition>16</xPosition>
+            <currentHealth>20</currentHealth>
+            <xPosition>13</xPosition>
             <yPosition>5</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
