@@ -2,6 +2,60 @@
 <state xExtent="25" yExtent="19" nextTargetID="17" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
+        <unit>
+            <ID>2</ID>
+            <currentHealth>22</currentHealth>
+            <xPosition>16</xPosition>
+            <yPosition>4</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>3</ID>
+            <currentHealth>4</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>4</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>4</ID>
+            <currentHealth>7</currentHealth>
+            <xPosition>14</xPosition>
+            <yPosition>4</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>6</ID>
+            <currentHealth>42</currentHealth>
+            <xPosition>13</xPosition>
+            <yPosition>4</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>7</ID>
+            <currentHealth>26</currentHealth>
+            <xPosition>16</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>8</ID>
+            <currentHealth>42</currentHealth>
+            <xPosition>17</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>0</ID>
             <foodCost>0</foodCost>
@@ -760,101 +814,11 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-2</supply>
+        <supply>4</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
-        <unit>
-            <ID>19</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>10</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>18</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>20</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>10</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>9</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>13</xPosition>
-            <yPosition>9</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>10</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>9</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>11</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>14</xPosition>
-            <yPosition>8</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>12</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>14</xPosition>
-            <yPosition>9</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>13</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>7</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>14</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>16</xPosition>
-            <yPosition>11</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>15</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>11</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>34</ID>
             <foodCost>0</foodCost>
@@ -1613,7 +1577,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>8</supply>
+        <supply>-2</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>

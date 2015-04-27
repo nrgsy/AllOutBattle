@@ -768,8 +768,8 @@
         <unit>
             <ID>19</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>16</xPosition>
-            <yPosition>6</yPosition>
+            <xPosition>17</xPosition>
+            <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -777,8 +777,8 @@
         <unit>
             <ID>18</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>6</yPosition>
+            <xPosition>15</xPosition>
+            <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -786,7 +786,7 @@
         <unit>
             <ID>20</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>20</xPosition>
+            <xPosition>15</xPosition>
             <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
@@ -795,8 +795,8 @@
         <unit>
             <ID>9</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>19</xPosition>
-            <yPosition>5</yPosition>
+            <xPosition>15</xPosition>
+            <yPosition>4</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -804,7 +804,7 @@
         <unit>
             <ID>10</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>20</xPosition>
+            <xPosition>18</xPosition>
             <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
@@ -813,7 +813,7 @@
         <unit>
             <ID>11</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>18</xPosition>
+            <xPosition>14</xPosition>
             <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
@@ -823,7 +823,7 @@
             <ID>12</ID>
             <currentHealth>60</currentHealth>
             <xPosition>16</xPosition>
-            <yPosition>5</yPosition>
+            <yPosition>4</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -831,8 +831,8 @@
         <unit>
             <ID>13</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>5</yPosition>
+            <xPosition>15</xPosition>
+            <yPosition>7</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -840,8 +840,8 @@
         <unit>
             <ID>14</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>20</xPosition>
-            <yPosition>7</yPosition>
+            <xPosition>13</xPosition>
+            <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -849,8 +849,8 @@
         <unit>
             <ID>15</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>5</yPosition>
+            <xPosition>14</xPosition>
+            <yPosition>4</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>

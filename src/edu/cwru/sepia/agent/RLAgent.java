@@ -36,7 +36,7 @@ public class RLAgent extends Agent {
 	//ensures the +100 reward can only be claimed once for killing an enemy, so no other unit can also claim
 	//the reward for kill the same enemy. (can occur when two or more footmen attack the same enemy at once)
 	public LinkedList<Integer> enemyBlackList;
-	//stores the set of actions last send out to the footmen
+	//stores the set of actions last sent out to the footmen
 	public Map<Integer, Action> currentActionMap;
 	//store the set the actions sent out before that
 	public Map<Integer, Action> previousActionMap;
@@ -62,7 +62,7 @@ public class RLAgent extends Agent {
 	/**
 	 * TODO Set this to whatever size your feature vector is.
 	 */
-	public static final int NUM_FEATURES = 2;
+	public static final int NUM_FEATURES = 4;
 
 	/** Use this random number generator for your epsilon exploration. When you submit we will
 	 * change this seed so make sure that your agent works for more than the default seed.
@@ -88,7 +88,7 @@ public class RLAgent extends Agent {
 		super(playernum);
 
 		if (args.length >= 1) {
-			numEpisodes = 200;//TODO Integer.parseInt(args[0]);
+			numEpisodes = 155;//TODO Integer.parseInt(args[0]);
 			System.out.println("Running " + numEpisodes + " episodes.");
 		} else {
 			numEpisodes = 10;
@@ -220,8 +220,12 @@ public class RLAgent extends Agent {
 
 				//only update weights freeze == false
 				if (!freeze) {
-					weights = updateWeights(weights, calculateFeatureVector(stateView, historyView, id, enemyID), 
-							rewardMap.get(id), stateView, historyView, id, enemyID);
+					weights = updateWeights(weights,
+							calculateFeatureVector(stateView, historyView, id, enemyID), 
+							rewardMap.get(id),
+							stateView,
+							historyView,
+							id);
 				}
 
 				actionMap.put(id, Action.createCompoundAttack(id, enemyID));
@@ -257,8 +261,8 @@ public class RLAgent extends Agent {
 		for (ActionResult result : actionResults.values()) {
 
 			if(!result.getFeedback().toString().equals("INCOMPLETE")) {
-//				System.out.println("event has occurred: Somebody's action was: " +
-//						result.getFeedback().toString());			
+				//				System.out.println("event has occurred: Somebody's action was: " +
+				//						result.getFeedback().toString());			
 				return true;
 			}
 		}
@@ -291,7 +295,7 @@ public class RLAgent extends Agent {
 		}
 
 		numEpisodesPlayed++;
-		System.out.println("\n" + numEpisodesPlayed + " episodes have been played");
+		System.out.println(numEpisodesPlayed + " episodes have been played\n");
 
 		//count the total reward if we're in evaluation mode (freeze == true)
 		if (freeze) {
@@ -302,7 +306,7 @@ public class RLAgent extends Agent {
 			evaluationRewards[evalRoundCounter] = sum;
 			evalRoundCounter++;
 		}
-		
+
 		//Q function starts frozen for the first 5 rounds, so freeze needs to be set to true every 15 rounds
 		//so freezing will occur at round 0, 15, 30, etc
 		if (numEpisodesPlayed % 15 == 0) {
@@ -313,18 +317,18 @@ public class RLAgent extends Agent {
 		}
 		//similarly unfreezing will occur at round 5, 20, 35, etc
 		else if ((numEpisodesPlayed - 5) % 15 == 0) {
-			System.out.println("Entering learning mode, unfreezing Q function");
 			freeze = false;
-			
+
 			//TODO cumulative rewards should be UNDISCOUNTED
 			Double sum = 0.0;
 			for (Double reward : evaluationRewards) {
 				sum += reward;
 			}
-			
+
 			Double avg = sum/evaluationRewards.length;
 			avgRewards.add(avg);	
 			printTestData(avgRewards);
+			System.out.println("Entering learning mode, unfreezing Q function");
 		}
 
 		//quit if we've just played the last episode
@@ -388,7 +392,7 @@ public class RLAgent extends Agent {
 	 * @return The updated weight vector.
 	 */
 	public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward,
-			State.StateView stateView, History.HistoryView historyView, int footmanId, int enemyId) {
+			State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
 
 		//TODO not sure if this is doing exactly what we're supposed to
@@ -396,8 +400,13 @@ public class RLAgent extends Agent {
 
 		Double[] newWeights = new Double[oldWeights.length];
 		for (int i = 0; i < oldWeights.length; i++) {
-
-			double currentQVal = calcQValue(stateView, historyView, footmanId, enemyId);
+			
+			//compute the dot product to get the final qVal
+			double dotProduct = 0;
+			for (int j = 0; j < oldFeatures.length; j++) {
+				dotProduct += oldFeatures[j] * oldWeights[j];
+			}
+			double currentQVal = dotProduct;
 
 			double maxQVal = currentQVal;
 			for (Integer enemy : enemyFootmen) {
@@ -505,7 +514,7 @@ public class RLAgent extends Agent {
 	public double calculateReward(State.StateView stateView, History.HistoryView historyView, int footmanId) {
 
 
-		//TODO figure out how to implement discounting of rewards, see lec 17 slide 16
+		//TODO figure out how to implement discounting of rewards based on timestep, see lec 17 slide 16
 
 
 		//no reward on the first turn because nothing has happened yet
@@ -575,7 +584,7 @@ public class RLAgent extends Agent {
 							compoundAttack.getTargetId() == deadUnitID) {
 						enemyBlackList.add(deadUnitID);
 						reward += 100;
-						System.out.println("kill reward claimed");
+						//System.out.println("kill reward claimed");
 						break;
 					}
 				}
@@ -614,16 +623,13 @@ public class RLAgent extends Agent {
 			System.exit(0);
 		}
 
-		//compute the dot product
+		//compute the dot product to get the final qVal
 		double dotProduct = 0;
 		for (int i = 0; i < features.length; i++) {
 			dotProduct += features[i] * weights[i];
 		}
 
-		//add in w0
-		double qVal = dotProduct + 0;
-
-		return qVal;
+		return dotProduct;
 	}
 
 	/**
@@ -649,16 +655,46 @@ public class RLAgent extends Agent {
 			int attackerId,
 			int defenderId) {
 
-		double[] featuresArray = new double[NUM_FEATURES];
-
-		//f1 is a constant
-		featuresArray[0] = .5;
-
-		//f2 is chebyshev distance to the enemy
+		//our friendly unit
 		UnitView attacker = stateView.getUnit(attackerId);
+		//enemy unit that we're attacking
 		UnitView defender = stateView.getUnit(defenderId);
-		featuresArray[1] = DistanceMetrics.chebyshevDistance(attacker.getXPosition(), attacker.getYPosition(),
-				defender.getXPosition(), defender.getYPosition());
+
+		double[] featuresArray = new double[NUM_FEATURES];
+		
+		//f1 is a constant
+		featuresArray[0] = 1;
+
+		int targetDistance = DistanceMetrics.chebyshevDistance(attacker.getXPosition(),
+				attacker.getYPosition(), defender.getXPosition(), defender.getYPosition());
+
+		int numberOfCloserEnemies = 0;
+		for (int enemyID : enemyFootmen) {
+			UnitView enemy = stateView.getUnit(enemyID);
+			int distance = DistanceMetrics.chebyshevDistance(attacker.getXPosition(),
+					attacker.getYPosition(), enemy.getXPosition(), enemy.getYPosition());
+			if (distance < targetDistance) {
+				numberOfCloserEnemies++;
+			}
+		}
+		//f2 is the rank of how close this enemy is to the footman compared to the others in terms of
+		//chebyshev distance
+		featuresArray[1] = numberOfCloserEnemies;
+
+		//f3 is the health ratio of the friendly footman to its target
+		featuresArray[2] = attacker.getHP()/defender.getHP();
+
+		int numFriendliesAlsoAttacking = 0;
+		if (currentActionMap != null) {
+			for (Action a : currentActionMap.values()) {
+				TargetedAction targetedAction = (TargetedAction) a;
+				if (defenderId == targetedAction.getTargetId()) {
+					numFriendliesAlsoAttacking++;
+				}
+			}
+		}
+		//f5 is the number of of friendly units also attacking the target
+		featuresArray[3] = numFriendliesAlsoAttacking;
 
 
 		//consider avoiding those with higher health than you

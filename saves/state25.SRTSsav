@@ -766,63 +766,54 @@
     <player>
         <ID>1</ID>
         <unit>
+            <ID>19</ID>
+            <currentHealth>52</currentHealth>
+            <xPosition>14</xPosition>
+            <yPosition>8</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
             <ID>18</ID>
-            <currentHealth>12</currentHealth>
-            <xPosition>16</xPosition>
-            <yPosition>4</yPosition>
+            <currentHealth>60</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>20</ID>
-            <currentHealth>46</currentHealth>
-            <xPosition>14</xPosition>
-            <yPosition>5</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>9</ID>
-            <currentHealth>31</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>6</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>10</ID>
-            <currentHealth>12</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>4</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>11</ID>
-            <currentHealth>46</currentHealth>
-            <xPosition>15</xPosition>
+            <currentHealth>60</currentHealth>
+            <xPosition>16</xPosition>
             <yPosition>7</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
-            <ID>12</ID>
-            <currentHealth>10</currentHealth>
+            <ID>9</ID>
+            <currentHealth>43</currentHealth>
             <xPosition>16</xPosition>
-            <yPosition>6</yPosition>
+            <yPosition>8</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>10</ID>
+            <currentHealth>56</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>13</ID>
-            <currentHealth>48</currentHealth>
-            <xPosition>16</xPosition>
+            <currentHealth>50</currentHealth>
+            <xPosition>14</xPosition>
             <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
@@ -830,18 +821,18 @@
         </unit>
         <unit>
             <ID>14</ID>
-            <currentHealth>12</currentHealth>
-            <xPosition>14</xPosition>
-            <yPosition>6</yPosition>
+            <currentHealth>60</currentHealth>
+            <xPosition>17</xPosition>
+            <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>15</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>18</xPosition>
-            <yPosition>5</yPosition>
+            <currentHealth>54</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>7</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -1604,7 +1595,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>7</supply>
+        <supply>6</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>
