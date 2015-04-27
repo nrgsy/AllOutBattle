@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<state xExtent="25" yExtent="19" nextTargetID="17" nextTemplateID="66" fogOfWar="false">
+<state xExtent="25" yExtent="19" nextTargetID="8" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -760,25 +760,16 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-2</supply>
+        <supply>-1</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
         <unit>
-            <ID>18</ID>
-            <currentHealth>20</currentHealth>
+            <ID>8</ID>
+            <currentHealth>5</currentHealth>
             <xPosition>15</xPosition>
-            <yPosition>4</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>15</ID>
-            <currentHealth>60</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>5</yPosition>
+            <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
@@ -1395,8 +1386,8 @@
             <timeCost>1</timeCost>
             <name>Footman</name>
             <baseHealth>60</baseHealth>
-            <baseAttack>7</baseAttack>
-            <piercingAttack>3</piercingAttack>
+            <baseAttack>6</baseAttack>
+            <piercingAttack>4</piercingAttack>
             <range>1</range>
             <armor>2</armor>
             <sightRange>4</sightRange>

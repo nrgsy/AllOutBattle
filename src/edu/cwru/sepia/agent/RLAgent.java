@@ -62,7 +62,7 @@ public class RLAgent extends Agent {
 	/**
 	 * TODO Set this to whatever size your feature vector is.
 	 */
-	public static final int NUM_FEATURES = 4;
+	public static final int NUM_FEATURES = 2;
 
 	/** Use this random number generator for your epsilon exploration. When you submit we will
 	 * change this seed so make sure that your agent works for more than the default seed.
@@ -88,7 +88,7 @@ public class RLAgent extends Agent {
 		super(playernum);
 
 		if (args.length >= 1) {
-			numEpisodes = 155;//TODO Integer.parseInt(args[0]);
+			numEpisodes = 110;//TODO revert: Integer.parseInt(args[0]);
 			System.out.println("Running " + numEpisodes + " episodes.");
 		} else {
 			numEpisodes = 10;
@@ -110,6 +110,9 @@ public class RLAgent extends Agent {
 			System.out.println("Warning! Load weights argument not specified. Defaulting to not loading.");
 		}
 
+		//TODO remove
+		loadWeights = true;
+		
 		if (loadWeights) {
 			weights = loadWeights();
 		} else {
@@ -668,21 +671,22 @@ public class RLAgent extends Agent {
 		int targetDistance = DistanceMetrics.chebyshevDistance(attacker.getXPosition(),
 				attacker.getYPosition(), defender.getXPosition(), defender.getYPosition());
 
-		int numberOfCloserEnemies = 0;
+		//indicates how close this footman is 
+		int closenessRank = 0;
 		for (int enemyID : enemyFootmen) {
 			UnitView enemy = stateView.getUnit(enemyID);
 			int distance = DistanceMetrics.chebyshevDistance(attacker.getXPosition(),
 					attacker.getYPosition(), enemy.getXPosition(), enemy.getYPosition());
 			if (distance < targetDistance) {
-				numberOfCloserEnemies++;
+				closenessRank++;
 			}
 		}
 		//f2 is the rank of how close this enemy is to the footman compared to the others in terms of
 		//chebyshev distance
-		featuresArray[1] = numberOfCloserEnemies;
+		featuresArray[1] = closenessRank;
 
 		//f3 is the health ratio of the friendly footman to its target
-		featuresArray[2] = attacker.getHP()/defender.getHP();
+		//featuresArray[2] = attacker.getHP()/defender.getHP();
 
 		int numFriendliesAlsoAttacking = 0;
 		if (currentActionMap != null) {
@@ -694,7 +698,7 @@ public class RLAgent extends Agent {
 			}
 		}
 		//f5 is the number of of friendly units also attacking the target
-		featuresArray[3] = numFriendliesAlsoAttacking;
+		//featuresArray[3] = numFriendliesAlsoAttacking;
 
 
 		//consider avoiding those with higher health than you
