@@ -416,7 +416,7 @@ public class RLAgent extends Agent {
 
 			double targetQVal = totalReward + gamma * maxQVal;
 			double dldw = -1 * (targetQVal - currentQVal) * oldFeatures[i];
-			newWeights[i] = oldWeights[i] - learningRate * (dldw);	
+			newWeights[i] = oldWeights[i] - learningRate * (dldw);
 
 			//TODO ask george if his diffs are fucking enormous
 			//System.out.println("diff " + i + " is: " + (targetQVal - currentQVal));
