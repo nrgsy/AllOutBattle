@@ -110,9 +110,6 @@ public class RLAgent extends Agent {
 			System.out.println("Warning! Load weights argument not specified. Defaulting to not loading.");
 		}
 
-		//TODO remove
-		//loadWeights = true;
-
 		if (loadWeights) {
 			weights = loadWeights();
 		} else {
@@ -380,7 +377,7 @@ public class RLAgent extends Agent {
 			double currentReward = calculateReward(stateView, historyView, id);
 			double cumulativeReward = rewardMap.get(id);
 			rewardMap.put(id, cumulativeReward + currentReward);
-		}			
+		}
 	}
 
 	/**
@@ -409,7 +406,7 @@ public class RLAgent extends Agent {
 			}
 			double currentQVal = dotProduct;
 
-			double maxQVal = currentQVal;
+			double maxQVal = Double.NEGATIVE_INFINITY;
 			for (Integer enemy : enemyFootmen) {
 				double qVal = calcQValue(stateView, historyView, footmanId, enemy);
 				if (qVal > maxQVal) {
@@ -463,7 +460,6 @@ public class RLAgent extends Agent {
 				int bestEnemyToAttack = enemyFootmen.get(0);
 				double bestQVal = calcQValue(stateView, historyView, attackerId, bestEnemyToAttack);
 				for (int i = 1; i < enemyFootmen.size(); i++) {
-
 					int enemyID = enemyFootmen.get(i);
 					double qVal = calcQValue(stateView, historyView, attackerId, enemyID);
 					if (qVal > bestQVal) {
@@ -599,9 +595,17 @@ public class RLAgent extends Agent {
 				reward -= 100;
 			}
 		}
-		
-		
 
+		//TODO delete
+//		if (stateView.getUnit(footmanId) != null) {
+//			System.out.println("footman at " + stateView.getUnit(footmanId).getXPosition() + ", " + 
+//					stateView.getUnit(footmanId).getYPosition() + " just got reward: " + reward);
+//		}
+//		else {
+//			System.out.println("footman " + footmanId + " just got reward: " + reward);
+//		}
+
+		
 		return reward;
 	}
 
@@ -701,7 +705,7 @@ public class RLAgent extends Agent {
 
 		//the number of friendly units also attacking your target
 		int numFriendliesAlsoAttacking = 0;
-			
+
 		if (stateView.getTurnNumber() != 0) {
 
 			Map<Integer, Action> commandsIssued =
@@ -715,7 +719,7 @@ public class RLAgent extends Agent {
 				}
 			}
 		}
-		
+
 		//f3 is the number of of friendly units also attacking the target divided by the total number of
 		//friendlies 
 		featuresArray[3] = numFriendliesAlsoAttacking/myFootmen.size();

@@ -2,6 +2,24 @@
 <state xExtent="25" yExtent="19" nextTargetID="8" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
+        <unit>
+            <ID>3</ID>
+            <currentHealth>32</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>9</ID>
+            <currentHealth>38</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>3</yPosition>
+            <templateID>25</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>0</ID>
             <foodCost>0</foodCost>
@@ -760,29 +778,11 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-1</supply>
+        <supply>1</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
-        <unit>
-            <ID>7</ID>
-            <currentHealth>46</currentHealth>
-            <xPosition>13</xPosition>
-            <yPosition>5</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
-            <ID>8</ID>
-            <currentHealth>43</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>5</yPosition>
-            <templateID>58</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>34</ID>
             <foodCost>0</foodCost>
@@ -1541,7 +1541,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>1</supply>
+        <supply>-1</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>

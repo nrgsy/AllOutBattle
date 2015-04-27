@@ -3,27 +3,18 @@
     <player>
         <ID>0</ID>
         <unit>
-            <ID>2</ID>
-            <currentHealth>7</currentHealth>
-            <xPosition>16</xPosition>
-            <yPosition>4</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
-        <unit>
             <ID>3</ID>
-            <currentHealth>45</currentHealth>
-            <xPosition>15</xPosition>
-            <yPosition>5</yPosition>
+            <currentHealth>10</currentHealth>
+            <xPosition>14</xPosition>
+            <yPosition>6</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
             <ID>9</ID>
-            <currentHealth>14</currentHealth>
-            <xPosition>15</xPosition>
+            <currentHealth>5</currentHealth>
+            <xPosition>14</xPosition>
             <yPosition>4</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
@@ -787,7 +778,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>2</supply>
+        <supply>1</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>

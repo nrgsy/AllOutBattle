@@ -766,18 +766,18 @@
     <player>
         <ID>1</ID>
         <unit>
-            <ID>6</ID>
-            <currentHealth>1</currentHealth>
-            <xPosition>15</xPosition>
+            <ID>7</ID>
+            <currentHealth>16</currentHealth>
+            <xPosition>13</xPosition>
             <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
             <progressAmount>0</progressAmount>
         </unit>
         <unit>
-            <ID>7</ID>
+            <ID>8</ID>
             <currentHealth>60</currentHealth>
-            <xPosition>14</xPosition>
+            <xPosition>15</xPosition>
             <yPosition>5</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>

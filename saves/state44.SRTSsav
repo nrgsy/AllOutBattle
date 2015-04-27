@@ -2,15 +2,6 @@
 <state xExtent="25" yExtent="19" nextTargetID="8" nextTemplateID="66" fogOfWar="false">
     <player>
         <ID>0</ID>
-        <unit>
-            <ID>9</ID>
-            <currentHealth>15</currentHealth>
-            <xPosition>17</xPosition>
-            <yPosition>5</yPosition>
-            <templateID>25</templateID>
-            <cargoAmount>0</cargoAmount>
-            <progressAmount>0</progressAmount>
-        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>0</ID>
             <foodCost>0</foodCost>
@@ -769,11 +760,20 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>0</supply>
+        <supply>-1</supply>
         <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
+        <unit>
+            <ID>8</ID>
+            <currentHealth>2</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>6</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>34</ID>
             <foodCost>0</foodCost>
@@ -1532,7 +1532,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-1</supply>
+        <supply>0</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>

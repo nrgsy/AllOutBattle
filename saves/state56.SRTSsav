@@ -765,6 +765,24 @@
     </player>
     <player>
         <ID>1</ID>
+        <unit>
+            <ID>7</ID>
+            <currentHealth>54</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>6</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
+        <unit>
+            <ID>8</ID>
+            <currentHealth>8</currentHealth>
+            <xPosition>15</xPosition>
+            <yPosition>5</yPosition>
+            <templateID>58</templateID>
+            <cargoAmount>0</cargoAmount>
+            <progressAmount>0</progressAmount>
+        </unit>
         <template xsi:type="UnitTemplate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ID>34</ID>
             <foodCost>0</foodCost>
@@ -1523,7 +1541,7 @@
             <quantity>0</quantity>
             <type>WOOD</type>
         </resourceAmount>
-        <supply>-1</supply>
+        <supply>1</supply>
         <supplyCap>0</supplyCap>
     </player>
 </state>

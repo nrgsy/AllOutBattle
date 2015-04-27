@@ -3,9 +3,9 @@
     <player>
         <ID>0</ID>
         <unit>
-            <ID>1</ID>
-            <currentHealth>1</currentHealth>
-            <xPosition>14</xPosition>
+            <ID>0</ID>
+            <currentHealth>3</currentHealth>
+            <xPosition>13</xPosition>
             <yPosition>6</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
@@ -13,8 +13,8 @@
         </unit>
         <unit>
             <ID>3</ID>
-            <currentHealth>15</currentHealth>
-            <xPosition>14</xPosition>
+            <currentHealth>37</currentHealth>
+            <xPosition>13</xPosition>
             <yPosition>7</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>
@@ -22,8 +22,8 @@
         </unit>
         <unit>
             <ID>9</ID>
-            <currentHealth>50</currentHealth>
-            <xPosition>13</xPosition>
+            <currentHealth>52</currentHealth>
+            <xPosition>14</xPosition>
             <yPosition>6</yPosition>
             <templateID>25</templateID>
             <cargoAmount>0</cargoAmount>

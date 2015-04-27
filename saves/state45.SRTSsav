@@ -767,8 +767,8 @@
         <ID>1</ID>
         <unit>
             <ID>7</ID>
-            <currentHealth>56</currentHealth>
-            <xPosition>16</xPosition>
+            <currentHealth>21</currentHealth>
+            <xPosition>14</xPosition>
             <yPosition>6</yPosition>
             <templateID>58</templateID>
             <cargoAmount>0</cargoAmount>
@@ -776,7 +776,7 @@
         </unit>
         <unit>
             <ID>8</ID>
-            <currentHealth>10</currentHealth>
+            <currentHealth>13</currentHealth>
             <xPosition>15</xPosition>
             <yPosition>6</yPosition>
             <templateID>58</templateID>
